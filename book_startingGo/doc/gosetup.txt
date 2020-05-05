@@ -1,0 +1,129 @@
+ぬるい golang 学習 ( macOS )
+
+# "Go" の名前
+
+正式名称は、golangでもなくGo言語でもなくgoでもなく "Go" っぽい。
+「golang」って書くと「正式名称は"Go"だから」ってツッコミが入ることがあるらしいってどこか見たことある。
+でも、書籍とかのタイトルでも「〜〜〜"Go言語"」って使うくらい、indentifyに苦労している感はにじみ出てる。
+https://golang.org も ドメイン名にgolangって入ってるし、"golang"もまた公式に"Go"を指す言葉であることは疑いようはない。
+視認性と識別性とgoogleabilityの観点から好きに書いたらいいんじゃないですかね。好きに書きます。
+
+「正式名称は〜」って文脈で言うときに気をつければいいんだろうね（つまりこの段落だけ気をつけて書いたけど、間違ってたらやだなー）。
+
+# Goのインストール
+
+バージョン互換性どんなもん？って疑問に思ったけど、
+Go 1のマイナーバージョンのリリースノートには(たぶん)毎回 [the Go 1 promise of compatibility](https://golang.org/doc/go1compat)を守ってるみたいなこと書いてあるらしい。
+とりあえず、Go 1使っているうちは、昔のバージョンのときに書かれていたコードも新しいバージョンのコンパイラ/実行処理系で動くと考えていいのでは。
+
+だから、シンプルに
+
+```
+brew install go
+```
+
+でいく。この記事書いている時点では 1.12.6 が落ちてきた。
+gvmとかgoenvとかイマドキの言語によくあるバージョン切り替えコマンドもあるらしいが、 [Getting Started - Installing extra Go versions](https://golang.org/doc/install#extra_versions) にはgo getで古いバージョンを取得して共存させる方法が書いてあるから、この公式のやつでもいいのでは？？困ったら考える。
+
+を追加しておく。
+
+# GOPATH の場所とパッケージ管理ツール
+
+## GOPATH
+
+QiitaでGOPATHの記事を探すといろいろ出てくる。が、デフォルトのGOPATHを推奨する記事が多いので、それに従っておく。
+
+.bash_profileとかに
+
+```
+export GOPATH="$HOME/go"
+export PATH=$GOPATH/bin:$PATH
+```
+
+を追加した。
+
+* Go 1.8 からデフォルトのGOPATH として `$HOME/go` が使われる: https://golang.org/doc/go1.8#gopath
+* [glideを使うとき、「GOPATHはどこにおいてもいい\(設定しなくてもいい\)」わけではない \#golang \- Qiita](https://qiita.com/mom0tomo/items/b66203b2718dd2626fd3)
+* [今日からGoをはじめる人に伝えたい$GOPATHではまった話](https://www.slideshare.net/ohashiyuta/gogopath)
+* [Go Modules \- Qiita](https://qiita.com/propella/items/e49bccc88f3cc2407745)
+
+## パッケージ管理ツール
+
+わからないのでスキップ。あとで考える。depってのが公式ツールで使われていたが、vgoってのがgoコマンドに直接組み込まれる新世代の公式のパッケージ管理ツールっぽい。 [和訳: Go & Versioning \- Qiita](https://qiita.com/nekketsuuu/items/36f00484ff7c30fd2007) にvgoが生まれた経緯みたいなののありがたい和訳があった。
+
+気になるのは
+
+```
+Starting to experiment with vgo does not mean ending support for dep. We will keep dep available until the path to full go command integration is decided, implemented, and generally available. We will also work to make the eventual transition from dep to the go command integration, in whatever form it takes, as smooth as possible. 
+
+https://research.swtch.com/vgo-intro
+```
+
+```
+この vgo による実験の開始は、dep のサポート終了を意味しない。我々は、go コマンドへの組み込み方法が完全に決まり、実装され、そして広く使われるようになるまでは dep を保全する。また我々は、dep コマンドから go コマンドへの最終的な移行方法をなるべく円滑なものにするつもりだ。
+
+https://qiita.com/nekketsuuu/items/60634417e6279ccfd95b
+```
+
+って書いてあるので、最終的にはvgoを使うことが良さそうなのだが、現時点でvgoが安定しているのかどうかという点。
+vgoを使ってみて、だめだったらdepを使うという感じで行こう。
+
+* [他言語から来た人がGoを使い始めてすぐハマったこととその答え \- Qiita](https://qiita.com/mumoshu/items/0d2f2a13c6e9fc8da2a4)
+* [GitHub \- golang/dep: Go dependency management tool](https://github.com/golang/dep)
+* [vgo · golang/go Wiki · GitHub](https://github.com/golang/go/wiki/vgo)
+* [Goにおけるバージョン管理の必要性 − vgoについて −](https://www.slideshare.net/takuyaueda967/go-vgo-102442203)
+
+なお、 
+[他言語から来た人がGoを使い始めてすぐハマったこととその答え \- Qiita](https://qiita.com/mumoshu/items/0d2f2a13c6e9fc8da2a4) 曰く、
+
+```
+パッケージ不足のエラーが出たり、vendorがなかったりする場合は以下の手順で確認する。
+
+プロジェクトルートにGopkg.tomlというファイルがある場合は、depという公式パッケージ管理ツールを使っているので、dep ensureを実行
+プロジェクトルートにglide.yamlというファイルがある場合は、Glideというパッケージ管理ツールを使っているので、glide installを実行
+プロジェクトルートにGodepsというディレクトリがある場合はGodepというパッケージ管理ツールを使ってるので、godep getを実行
+```
+
+TODO: プロジェクト単位のパッケージのバージョニングをどうやってやるのか。Dockerまかせか？dep/vgo使うのか？
+
+# Goのエディタ
+
+好きなものを使えばいい。
+とくに強いこだわりがないのでVSCode使ってみようと思う。
+
+## Visual Studio Code
+
+* [Go for Visual Studio Code](https://github.com/Microsoft/vscode-go) の拡張をインストール
+
+MBP TouchBarなのでF5押しにくい。
+`デバッグの開始` のキーバインディングだけ `Cmd+Ctrl+R` に変えとく。
+`Cmd+R` と悩んだんですが、いつか かぶっちゃやーよ が発動するかもって思って `Cmd+Ctrl+R` にしときます。
+
+## 補完したい
+
+Go 1.12以上で、bingo という lsp(Language Server Protocol) 型の補完ツールが有る模様。lspって知らなんだ。
+
+* [golang \+ vscode \+ bingo\(gopls\) でコード補完を実現する \- Qiita](https://qiita.com/kkeisuke/items/be3d9969fcfdca81753c)
+
+この記事の手順に従っておけば良さそう。 
+
+補完ツールの歴史は以下の記事が詳しい。
+
+* [Big Sky :: gocode やめます\(そして Language Server へ\)](https://mattn.kaoriya.net/software/lang/go/20181217000056.htm)
+
+
+### 詳細
+
+https://github.com/saibing/tools の手順
+
+```
+git clone -b bingo https://github.com/saibing/tools.git
+cd tools/gopls
+go install
+```
+
+この go install というコマンドは、実行ファイル形式にビルドして $GOPATH/bin にインストール(コピー) するコマンドっぽい。 `$GOPATH/bin/gopls` ができている。
+
+環境設定で `settings.json` を検索し、 「settings.jsonで編集」ってリンクを開く。または `$HOME/Library/Application Support/Code/User/settings.json` を編集する。 https://github.com/saibing/tools#vscode-go に記載していあるJSONをマージする。
+
+設定を読み込むために vscode を再起動し、 `fmt.P` とか打ってみると、補完されているのが確認できた。
