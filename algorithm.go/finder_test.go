@@ -13,7 +13,6 @@ func TestAllOf(t *testing.T) {
 			t.Errorf("unexpected result: got:%v, expected:%v", got, expected)
 		}
 	}
-
 	{
 		s := []uint{1, 4, 5}
 		expected := false
